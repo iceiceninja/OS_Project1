@@ -1,0 +1,465 @@
+
+import java.io.*;
+import java.lang.Runtime;
+import java.util.Scanner;
+
+public class CPU {
+
+    public static void main(String args[]) {
+        int PC = 0; // has the memory address that we wish to get
+        int SP = 1000; //
+        int IR = 0; // holds instruction that was found in memory address
+        int AC = 0; // used for math?
+        int X = 0;
+        int Y = 0;
+
+        int timer = Integer.parseInt(args[1]);
+        int instructionsRan = 0;
+//        boolean interrupt = false;
+
+        try {
+            int x;
+            Runtime rt = Runtime.getRuntime();
+
+            Process proc = rt.exec("java Memory " + args[0]); // args [0] should be the name of the input file
+            //Process proc = rt.exec("cat hello.java");
+
+            InputStream is = proc.getInputStream();
+            OutputStream os = proc.getOutputStream();
+
+            PrintWriter pw = new PrintWriter(os);
+            Scanner sc = new Scanner(is);//is);
+            boolean signalRecieved = false;
+            while (!signalRecieved) {   //  Wait for memory to read user input file
+
+                try {
+                    String line = sc.nextLine();
+                    if (line != null) {
+                        if (line.startsWith("D")) {
+                            signalRecieved = true;
+                        }
+                        System.out.println(line);
+                    }
+                } catch (Exception e) {
+                }
+            }
+
+            do {
+                //Fetch
+                if (instructionsRan >= timer && PC < 1000) {
+                    //process interupt TIMER INTERRUPT
+//                    interrupt = true;
+//                    System.out.println("Instructions ran since last timer interrupt:" + instructionsRan);
+                    instructionsRan = 0;
+                    pw.printf("w " + 1999 + " " + SP + "\n");
+                    pw.flush();
+//                    PC++;
+                    pw.printf("w " + 1998 + " " + PC + "\n");
+                    pw.flush();
+//                    System.out.println("TIMER INTERRUPT: PUSHING PC:" + PC + " SP:" + SP);
+
+                    SP = 1998;
+                    PC = 1000;
+                    continue;
+
+                }
+//                System.out.println("Instructions ran: " + instructionsRan +"/" + timer);
+//                System.out.println("New PC is: " + PC);
+                pw.printf(PC + "\n");
+                pw.flush();
+//                while(sc.hasNext())
+//                {
+//                    
+//                    
+//                }
+                IR = Integer.parseInt(sc.next());//sc.nextLine()
+                instructionsRan++;
+
+//                System.out.println("IR:" + IR);
+                //Execute
+                switch (IR) {
+                    case 1:
+                        //Load
+                        PC++;
+                        pw.printf(PC + "\n");
+                        pw.flush();
+
+                        AC = Integer.parseInt(sc.next());
+//                        System.out.println("LOADED " + AC);
+
+                        break;
+                    case 2:
+                        //Load value at address into AC
+                        PC++;
+                        pw.printf(PC + "\n");
+                        pw.flush();
+                        pw.printf(sc.next() + "\n");
+                        pw.flush();
+                        AC = Integer.parseInt(sc.next());
+                        break;
+//                    case 3:
+//                        
+//                        break;
+                    case 4:
+                        //Load ID + x addr
+                        PC++;
+                        pw.printf(PC + "\n");
+                        pw.flush();
+
+                        pw.printf(X + Integer.parseInt(sc.nextLine()) + "\n");
+                        pw.flush();
+
+                        AC = Integer.parseInt(sc.nextLine());
+//                        System.out.println(AC);
+                        break;
+                    case 5:
+                        //Load ID + y addr
+                        PC++;
+                        pw.printf(PC + "\n");
+                        pw.flush();
+
+                        pw.printf(Y + Integer.parseInt(sc.nextLine()) + "\n");
+                        pw.flush();
+
+                        AC = Integer.parseInt(sc.nextLine());
+                        break;
+                    case 6:
+                        // Adds SP and X and reads from that address into AC
+//                        System.out.println("Loading from " + (SP + X));
+                        pw.printf((SP + X) + "\n");
+                        pw.flush();
+                        AC = Integer.parseInt(sc.next());
+//                        System.out.println("AC is now " + AC);
+                        break;
+                    case 7:
+                        PC++;
+                        pw.printf(PC + "\n");
+                        pw.flush();
+                        int test = Integer.parseInt(sc.next());
+                        pw.printf("w " + test + " " + AC + "\n");
+                        pw.flush();
+//                        System.out.println("AC:" + AC + " was stored at " + test);
+                        break;
+                    case 8:
+                        //get
+                        AC = (int) (Math.random() * (100 - 1)) + 1;
+//                        System.out.println("AC: " + AC);
+                        break;
+                    case 9:
+                        //put port
+                        PC++;
+//                        System.out.println("Instruction 9, reading next line. new PC is: " + PC);
+                        pw.printf(PC + "\n");
+                        pw.flush();
+                        IR = Integer.parseInt(sc.next());
+//                        System.out.println("AC is: " + AC);
+                        if (IR == 1) {
+                            //print int
+                            System.out.print(AC);
+                        } else if (IR == 2) {
+                            //print CHar
+                            System.out.print((char) AC);
+                        }
+                        break;
+                    case 10:
+                        //Add X
+                        AC += X;
+                        break;
+                    case 11:
+                        //Add Y
+                        AC += Y;
+                        break;
+                    case 14:
+                        //Copy to x
+                        X = AC;
+                        break;
+                    case 15:
+                        //Copy from x
+                        AC = X;
+                        break;
+                    case 16:
+                        Y = AC;
+                        //Copy To Y
+                        break;
+                    case 17:
+                        //Set AC equal to value in Y
+                        AC = Y;
+                        break;
+                    case 20:
+                        // jump
+                        PC++;
+                        pw.printf(PC + "\n");
+                        pw.flush();
+                        PC = Integer.parseInt(sc.nextLine());
+
+                        continue;
+                    case 21:
+                        //jump to address if value is equal to zero
+                        PC++;
+                        pw.printf(PC + "\n");
+                        pw.flush();
+//                        AC = Integer.parseInt(sc.nextLine());
+                        if (AC == 0) {
+                            PC = Integer.parseInt(sc.nextLine());
+                            continue;
+                        } else {
+                            sc.nextLine();
+                            break;
+                        }
+                    case 22:
+                        //jump to address if value is NOT equal to zero
+                        PC++;
+                        pw.printf(PC + "\n");
+                        pw.flush();
+//                        AC = Integer.parseInt(sc.nextLine());
+//                        System.out.println("AC:" + AC);
+                        if (AC != 0) {
+                            PC = Integer.parseInt(sc.next());
+//                            System.out.println("Jumping to " +PC);
+                            continue;
+                        } else {
+                            sc.next();
+                            break;
+                        }
+                    case 23:
+                        // return address on stack then jump to addr
+//                        System.out.println("Instruction 23");
+                        PC++;
+                        pw.printf(PC + "\n");
+                        pw.flush();
+
+                        PC++;
+                        SP--;
+//                        System.out.println("Sending write signal");
+//                        System.out.println("Writing " + PC + " at address " + SP);
+
+                        pw.printf("w " + SP + " " + PC + "\n");
+                        pw.flush();
+
+//                        System.out.println("SP is now " + SP);
+                        PC = sc.nextInt();
+//                        System.out.println("Jumping to " + PC);
+
+                        continue;
+                    case 24:
+                        //Jump to ret addr from stack
+                        pw.printf(SP + "\n");
+                        pw.flush();
+                        PC = Integer.parseInt(sc.next());
+                        SP++;
+
+                        continue;
+                    case 25:
+                        //increment x
+                        X++;
+                        break;
+                    case 26:
+                        //Dec x
+                        X--;
+//                        System.out.println("X has been decremented to:" +X);
+                        break;
+                    case 27:
+                        //Push AC on to stack
+//                        System.out.println("Pushing AC: " + AC + " Onto stack");
+//                        System.out.println("Sending write signal");
+                        SP--;
+                        pw.printf("w " + SP + " " + AC + "\n");
+                        pw.flush();
+
+//                        System.out.println("SP is now " + SP);
+                        break;
+                    case 28:
+                        //Pop from stack to AC
+//                        System.out.println("Popping from SP:" +SP);
+                        pw.printf(SP + "\n");
+                        pw.flush();
+                        AC = Integer.parseInt(sc.next());
+//                        System.out.println("Popped:" + AC);
+                        SP++;
+                        break;
+                    case 29:
+                        //SYSCALL
+                        //SP Switch to System stack
+//                        SP = 2000;
+
+//                        SP--;
+//                        interrupt = true;
+//                        System.out.println("Entering Application syscall");
+                        pw.printf("w " + 1999 + " " + SP + "\n");
+                        pw.flush();
+                        pw.printf("w " + 1998 + " " + ++PC + "\n");
+                        pw.flush();
+
+                        SP = 1998;
+                        PC = 1500;
+                        continue;
+                    case 30:
+                        //RETURN FROM SYSCALL
+//                        interrupt = false;
+//                        instructionsRan = 0;
+
+                        pw.printf(SP + "\n");
+                        pw.flush();
+                        SP++;
+
+                        pw.printf(SP + "\n");
+                        pw.flush();
+                        SP++;
+
+                        PC = Integer.parseInt(sc.next());
+//                        PC++;
+                        SP = Integer.parseInt(sc.next());
+//                        PC++;
+//                        System.out.println("Leaving syscall, PC:" + PC + " and SP:" + SP);
+                        continue;
+                    case 50:
+                        break;
+//                    case 98:
+//                        //Writes AC to given address
+//                        PC++;
+//                        pw.printf(PC + "\n");
+//                        pw.flush();
+//                        
+//                        //address
+//                        IR = Integer.parseInt(sc.next());
+//                        System.out.println("Writing " + AC + " to " + IR);
+//                        pw.printf("w " + IR + " " + AC + "\n");
+//                        pw.flush();
+//
+//                        break;
+//                    case 99:
+//                        //READ TEST
+//                        PC++;
+//                        pw.printf(PC + "\n");
+//                        pw.flush();
+//                        IR = Integer.parseInt(sc.next());
+//                        System.out.println("READING FROM " + IR);
+//                        pw.printf(IR + "\n");
+//                        pw.flush();
+//                        System.out.println("READ " + Integer.parseInt(sc.next()) + " FROM " + IR);
+//                        break;
+                    default:
+                        IR = 50;
+                }
+//                } while (sc.hasNext());
+                PC++;
+//                if (PC < 1000) {
+//
+//                }
+//                System.out.println(instructions);
+
+            } while (IR != 50);
+            pw.close();
+            proc.waitFor();
+            int exitVal = proc.exitValue();
+
+            System.out.println("Process exited: " + exitVal);
+//            }
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Scanner;
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+//package osproject1;
+/**
+ *
+ * @author iceiceninja
+ */
+public class Memory {
+
+    static int[] memory = new int[2000];
+    static PrintWriter pw = new PrintWriter(System.out);
+
+    public static void main(String[] args) throws IOException {
+        //  TODO: READ IN FILE. IF LINE STARTS WITH . OR A DIGIT THEN READ UNTIL WHITE SPACE.
+        //      THEN MOVE TO NEXT LINE. OTHERWISE SKIP LINE AND START READING NEXT
+        try {
+            try (Scanner scanner = new Scanner(new File(args[0]))) {
+                int counter = 0;
+                while (scanner.hasNextLine()) {
+                    var line = scanner.nextLine();
+                    if ((line.length() > 0) && (line.charAt(0) == '.' || Character.isDigit(line.charAt(0)))) {                       
+//                        pw.write("memAddr[" + counter + "]: " + line + "\n");
+                        String command = line.replaceAll("\\s+", " ").split(" ")[0];
+//                        pw.write(command + "\n");
+//                        command
+
+                        if (line.charAt(0) == '.') {
+
+                            counter = Integer.parseInt(line.replace(".", ""));
+                        } else {
+//                        pw.write(testline);
+                            write(counter, Integer.parseInt(command)); //Will eventually have to handle non-Ints
+                            counter++;
+                        }
+                    }
+                }
+//                while (scanner.hasNextInt()) {
+//
+////                    System.out.println(scanner.nextLine());
+////                  memory[counter] = scanner.nextInt();
+//                    write(counter, scanner.nextInt());
+//                    counter++;
+//                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+//        // Signal readiness to the parent process
+        Scanner sc = new Scanner(System.in);    //After this line memory can start recieving commands from the parent
+//         pw.write("memory at 0 is " + memory[0] + "\n");
+//        pw.flush();
+        pw.write("Done \n");    //This signals the parent process that the child is done reading the file in
+        pw.flush();
+        int memoryAddress = 0;
+
+        while (sc.hasNext()) {
+            //  Reading from memory
+            var cpuRequest = sc.nextLine();
+            if (cpuRequest.split(" ")[0].equals("w")) {//"w".equals(cpuRequest)
+//                int stackPointer = Integer.parseInt(sc.nextLine());
+//                int data = Integer.parseInt(sc.nextLine());
+//                write(stackPointer,data);
+                write(Integer.parseInt(cpuRequest.split(" ")[1]),Integer.parseInt(cpuRequest.split(" ")[2]));
+            } else {
+                memoryAddress = Integer.parseInt(cpuRequest);//sc.nextInt();
+                read(memoryAddress);
+            }
+        }
+
+    }
+
+    static public void read(int address) {
+        System.out.println(memory[address]);
+    }
+
+    static public void write(int address, int data) {
+//         pw.write(address + " " + data + " \n");
+//            pw.flush();
+        memory[address] = data;
+    }
+
+}

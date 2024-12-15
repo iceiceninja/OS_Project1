@@ -1,0 +1,93 @@
+//Finds factorial of a number (10)
+1	//loads number that we will factorial into AC
+10
+7	//stores number in running total
+500
+27	//Pushes AC onto stack (This is the main loop count)
+20	//Jumps to start of main loop
+100
+//Main Loop
+.100
+28	//Pops loop counter into AC
+14	//Copies loop counter into X
+2	//Loads running total into AC
+500	
+16	//Copy to Y	
+26	//Decrement X
+15	//Copy value of X to AC
+21	//Jump if AC is equal to zero
+150	// address of print
+27	//Push new loop counter onto stack
+23	//Multiply
+200
+20	//Jump to start of main loop
+100	//address of start of main loop
+
+.150
+//Print and Exit
+//Make sure AC has the final number loaded
+2	//Load running total into AC
+500
+9	//Print Factorial
+1
+1	//Loading new line
+10
+9	// printing new line
+2
+50	//Exit
+
+(line number of multiply (remember how memory parses file))
+
+
+	//Multiply 2
+.200
+14	//Copy AC to X (loop counter)
+2	//Load running total into AC
+500
+16	//Copies running total to Y
+27	//Pushes ac onto stack
+26	//dec x
+15	// Copy x to ac
+21	//Jump if eq to zero
+216
+//Maybe another decX here because we need to add x-1 times
+//loop
+
+28	//pops running total off of stack
+11	//Adds value of Y to AC
+26	//Dec X
+27	//Pushes AC onto stack
+15	//Copies value of x to ac
+22	//Jumps if AC is NOT equal to zero
+209	// start of loop
+28	//Pops running total back into AC
+7	//Stores values of AC into running total
+500
+24	//Return from subroutine
+
+
+
+
+	//Multiply Y times AC
+//(Loop where you add Y to itself AC-1 times)
+//14	//Copy AC to X (This is loop counter)
+//17	// Copy Y into the AC
+//11	//Adds the value of Y to the AC
+
+//16	// Copies the value of the AC to Y
+//26	// Dec X
+//15	//Copies value in X to AC
+//22	//Jump if not equal to zero, set to start of subroutine
+//17	//Gets running total from Y and puts into AC
+//7	//Stores value of AC in the running total
+//500
+//24	//Return from subroutine
+
+
+
+.500
+0	//Running total
+
+.1000
+30	//Return from timer interrupt
+
